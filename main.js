@@ -4,48 +4,47 @@ const app = new Koa();
 var bodyParser = require('koa-bodyparser');
 var process = require('child_process');
 const mount = require('koa-mount');
-
-let i = 0
 app.use(bodyParser());
-app.use(async ctx => {
-    i++;
-  ctx.body = 'Hello World-------' + i;
 
-  const b = new Koa();
+/**
+ * 
+ * @param {*} command 需要执行的命令
+ * @param {*} path    执行目录
+ * @param {*} before  开始执行的准备
+ */
+const shell = function (command, path, before){
+    if(before) before();
+    return new Promise(function(resolve, reject){
+        process.exec(command, {'cwd': path},
+        (error, stdout, stderr)=> {
+           if (error) {
+             reject('fail');
+           } else {
+             resolve('success');
+           }
+       });
+    })
+}
 
-  b.use(async function (ctx, next){
-    await next();
-    ctx.body = 'World';
-  });
-  app.use(mount('/hello', b));
+let Store = {
+    'test': 'pending'
+}
 
-//   process.exec('git pull', {'cwd':'/home/coding/workspace'},
-//   function (error, stdout, stderr) {
-//       console.log('stdout========================\n' + stdout);
-//       console.log('stderr========================\n' + stderr);
-//       if (error !== null) {
-//           res.send('<pre>fail!!!\n' + stdout + error + '</pre>');
-//       } else {
-//           res.send('<pre>done!!!\n' + stdout + '</pre>');
-//       }
-//   });
+const test = new Koa();
+test.use(async function (ctx, next){
+    shell('wget baidu.com', '/Users/NoBey/Desktop/git-auto-pull', () => Store.test = 'pending').then( ok => Store.test = ok );
+    ctx.body = Store.test
+});
 
+const info = new Koa();
+info.use(async function (ctx, next){
+    console.log(ctx.request.query)
+    ctx.body = Store
 });
 
 
-
-// app.post('/webhook', function(req,res){
-//     console.log('print', req.body);
-//     console.info(req.body["token"]);
-//     if('xxx' === req.body['token'] ){
-
-//     console.info(process);
-
-//     } else {
-//         console.log(' failed token ')
-//         res.send('<pre>token不正确?</pre>');
-//     }
-// });
+app.use(mount('/test', test));
+app.use(mount('/info', info));
 
 
 app.listen(3000);
