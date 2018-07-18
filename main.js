@@ -4,6 +4,9 @@ const app = new Koa();
 var bodyParser = require('koa-bodyparser');
 var process = require('child_process');
 const mount = require('koa-mount');
+let config = require('./config.json')
+let tmp = {};
+
 app.use(bodyParser());
 
 app.use(async (ctx, next) => {
@@ -52,15 +55,7 @@ const shell = function (command, path, name, before){
     })
 }
 
-let config = [
-    {
-        cmd: 'wget baidu.com',
-        pwd: '/Users/NoBey/Desktop/git-auto-pull',
-        name: 'test'
-    }
-]
 
-let tmp = {};
 
 config.map(item => {
     const tmp = new Koa();
@@ -85,4 +80,4 @@ info.use(async function (ctx, next){
 app.use(mount('/info', info));
 
 
-app.listen(3000);
+app.listen(12345);

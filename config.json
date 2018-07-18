@@ -1,0 +1,7 @@
+[
+    {
+        "cmd": "wget baidu.com",
+        "pwd": "/Users/NoBey/Desktop/git-auto-pull",
+        "name": "test"
+    }
+]
